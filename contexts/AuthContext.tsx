@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useEffect, useState } from "react";
 import { setCookie, parseCookies, destroyCookie } from "nookies";
 import Router from "next/router";
+
 import { api } from "../services/apiClient";
 
 type User = {
@@ -42,19 +43,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User>();
   const isAuthenticated = !!user;
 
-  // useEffect(() => {
-  //   authChannel = new BroadcastChannel('auth')
+  useEffect(() => {
+    authChannel = new BroadcastChannel("auth");
 
-  //   authChannel.onmessage = (message) => {
-  //     switch (message.data) {
-  //       case 'signOut':
-  //         signOut();
-  //         break;
-  //       default:
-  //         break;
-  //     }
-  //   }
-  // }, [])
+    authChannel.onmessage = (message) => {
+      switch (message.data) {
+        case "signOut":
+          signOut();
+          break;
+        case "signIn":
+          Router.push("/dashboard");
+          break;
+        default:
+          break;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const { "nextauth.token": token } = parseCookies();
